@@ -54,6 +54,22 @@
         {text: "Back to Menu", x: centerX-100, y: GAME_H-100, w: 200, h: 50, action: ()=>{gameState='menu';}}
       ];
     }
+    function handleMenuButton(x, y) {
+      getMenuButtons().forEach(btn => {
+        if (x >= btn.x && x <= btn.x + btn.w &&
+            y >= btn.y && y <= btn.y + btn.h) {
+          btn.action();
+        }
+      });
+    }
+    function handleTutorialButton(x, y) {
+      getTutorialButton().forEach(btn => {
+        if (x >= btn.x && x <= btn.x + btn.w &&
+            y >= btn.y && y <= btn.y + btn.h) {
+          btn.action();
+        }
+      });
+    }
 
     // --- Responsive canvas scale (CSS only) ---
     function resizeCanvas() {
@@ -127,55 +143,64 @@
       requestAnimationFrame(loop);
     }
 
-// --- SWIPE CONTROL & MENU BUTTONS ---
-    let touchStartX = 0, touchStartY = 0;
+    // --- MENU & TUTORIAL BUTTONS: desktop (mouse) support ---
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) * (GAME_W / rect.width);
+      const my = (e.clientY - rect.top) * (GAME_H / rect.height);
+      if (gameState === 'menu') {
+        handleMenuButton(mx, my);
+      } else if (gameState === 'tutorial') {
+        handleTutorialButton(mx, my);
+      }
+    });
+
+    // --- DRAG-TO-MOVE MOBILE CONTROL ---
+    let touchStartX = 0, touchStartY = 0, dragging = false;
     canvas.addEventListener('touchstart', e => {
       if (e.touches.length !== 1) return;
       const t = e.touches[0];
       const rect = canvas.getBoundingClientRect();
       touchStartX = (t.clientX - rect.left) * (GAME_W / rect.width);
       touchStartY = (t.clientY - rect.top)  * (GAME_H / rect.height);
+
+      if (gameState === 'playing') dragging = true;
+    });
+    canvas.addEventListener('touchmove', e => {
+      if (!dragging || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const moveX = (t.clientX - rect.left) * (GAME_W / rect.width);
+      const moveY = (t.clientY - rect.top)  * (GAME_H / rect.height);
+
+      let dx = moveX - touchStartX;
+      let dy = moveY - touchStartY;
+      let dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > 8) {
+        player.vx = (dx/dist) * player.speed;
+        player.vy = (dy/dist) * player.speed;
+      } else {
+        player.vx = 0;
+        player.vy = 0;
+      }
     });
     canvas.addEventListener('touchend', e => {
-      if (e.changedTouches.length !== 1) return;
       const t = e.changedTouches[0];
       const rect = canvas.getBoundingClientRect();
       const endX = (t.clientX - rect.left) * (GAME_W / rect.width);
       const endY = (t.clientY - rect.top)  * (GAME_H / rect.height);
 
-      // --- Menu/Buttons Touch ---
       if (gameState === 'menu') {
-        getMenuButtons().forEach(btn => {
-          if (endX >= btn.x && endX <= btn.x + btn.w &&
-              endY >= btn.y && endY <= btn.y + btn.h) {
-            btn.action();
-          }
-        });
+        handleMenuButton(endX, endY);
         return;
       }
       if (gameState === 'tutorial') {
-        getTutorialButton().forEach(btn => {
-          if (endX >= btn.x && endX <= btn.x + btn.w &&
-              endY >= btn.y && endY <= btn.y + btn.h) {
-            btn.action();
-          }
-        });
+        handleTutorialButton(endX, endY);
         return;
       }
-
-      // --- In-game swipe ---
-      const dx = endX - touchStartX;
-      const dy = endY - touchStartY;
-      const threshold = 30;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
-        if (dx > 0)      player.x += player.speed * 12;
-        else             player.x -= player.speed * 12;
-      } else if (Math.abs(dy) > threshold) {
-        if (dy > 0)      player.y += player.speed * 12;
-        else             player.y -= player.speed * 12;
-      }
-      player.x = Math.max(0, Math.min(GAME_W - player.width, player.x));
-      player.y = Math.max(0, Math.min(GAME_H - player.height, player.y));
+      // End drag-move
+      dragging = false;
+      player.vx = 0; player.vy = 0;
     });
 
     // --- Menu Draw (uses latest button positions) ---
@@ -219,25 +244,6 @@
         ctx.textAlign = 'center';
         ctx.fillText(btn.text, btn.x + btn.w/2, btn.y + btn.h/2 + 8);
       });
-    }
-
-      // Button
-      const btn = {text: "Back to Menu", x: centerX-100, y: GAME_H-100, w: 200, h: 50, action: ()=>{gameState='menu';}};
-      ctx.fillStyle = '#2e3c70';
-      ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-      ctx.strokeStyle = '#fff';
-      ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-      ctx.fillStyle = '#fff';
-      ctx.font = '26px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(btn.text, btn.x + btn.w/2, btn.y + btn.h/2 + 8);
-
-      if (processTouch && tx !== undefined && ty !== undefined) {
-        if (tx >= btn.x && tx <= btn.x + btn.w &&
-            ty >= btn.y && ty <= btn.y + btn.h) {
-          btn.action();
-        }
-      }
     }
 
     function drawBackground(){
@@ -297,6 +303,7 @@
     function resetGame(){ obstacles=[]; powerUps=[]; frame=0; score=0; lastScoreFrame=0; scoreMultiplier=1;
       nextSpeedThreshold=10; puTimers={double2:0,double3:0,invincible:0}; lastPUFrame=-600;
       obstacleSpeedFactor=1; puSpeedFactor=1; player.speed=4; player.x=GAME_W/2-32; player.y=GAME_H-100;
+      player.vx = 0; player.vy = 0;
       gameOver=false; resetBtn.style.display='none'; }
 
     function checkCollisions(){ obstacles.forEach((o,i)=>{
@@ -312,15 +319,20 @@
       }); }
 
     function loop(){
-      if(gameState==='menu'){ drawMenu(false); requestAnimationFrame(loop); return; }
-      if(gameState==='tutorial'){ drawTutorial(false); requestAnimationFrame(loop); return; }
+      if(gameState==='menu'){ drawMenu(); requestAnimationFrame(loop); return; }
+      if(gameState==='tutorial'){ drawTutorial(); requestAnimationFrame(loop); return; }
       if(gameOver){ ctx.fillStyle='red'; ctx.font='40px Arial'; const txt='GAME OVER', tw=ctx.measureText(txt).width; ctx.fillText(txt,(GAME_W-tw)/2,GAME_H/2); resetBtn.style.display='block'; return; }
       ctx.clearRect(0,0,GAME_W,GAME_H);
       drawBackground(); drawSpiral(); frame++;
-      if(keys['ArrowLeft']) player.x -= player.speed;
-      if(keys['ArrowRight']) player.x += player.speed;
-      if(keys['ArrowUp']) player.y -= player.speed;
-      if(keys['ArrowDown']) player.y += player.speed;
+
+      // --- Desktop keys movement ---
+      player.x += (keys['ArrowLeft'] ? -player.speed : 0)
+               + (keys['ArrowRight'] ? player.speed : 0)
+               + (player.vx || 0);
+      player.y += (keys['ArrowUp'] ? -player.speed : 0)
+               + (keys['ArrowDown'] ? player.speed : 0)
+               + (player.vy || 0);
+
       player.x = Math.max(0, Math.min(GAME_W-player.width, player.x));
       player.y = Math.max(0, Math.min(GAME_H-player.height, player.y));
       if(frame-lastScoreFrame>=60){ score+=scoreMultiplier; lastScoreFrame=frame; }
@@ -340,6 +352,23 @@
       if(puTimers.double3>0){ ctx.fillText('3X: '+Math.ceil(puTimers.double3/60)+'s', GAME_W-140,yOff); yOff+=20; }
       if(puTimers.invincible>0){ ctx.fillText('INV: '+Math.ceil(puTimers.invincible/60)+'s', GAME_W-140,yOff); }
       requestAnimationFrame(loop);
+    }
+
+    // Keyboard controls remain unchanged:
+    window.addEventListener('keydown', e => {
+      if (gameState==='menu') return handleMenu(e);
+      if (gameState==='tutorial') return handleTutorial(e);
+      keys[e.code] = true; updateVel();
+    });
+    window.addEventListener('keyup', e => { keys[e.code] = false; updateVel(); });
+    function handleMenu(e){ if (e.code==='Enter'){ gameState='playing'; resetGame(); } if (e.code==='KeyT'){ gameState='tutorial'; }}
+    function handleTutorial(e){ if (e.code==='Enter'){ gameState='menu'; }}
+    function updateVel(){
+      player.vx=0; player.vy=0;
+      if(keys['ArrowLeft']) player.vx=-player.speed;
+      if(keys['ArrowRight']) player.vx=player.speed;
+      if(keys['ArrowUp']) player.vy=-player.speed;
+      if(keys['ArrowDown']) player.vy=player.speed;
     }
 
     function showMenu(){ gameState='menu'; }
