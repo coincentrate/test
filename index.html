@@ -833,32 +833,32 @@ function startGame(){
 }
 
 // --- SWIPE CONTROL (Mobile, mapped to virtual/game coords) ---
-let touchStartX = 0, touchStartY = 0;
+let dragging = false;
+let dragStartX = 0, dragStartY = 0;
+
 canvas.addEventListener('touchstart', e => {
   if (e.touches.length !== 1) return;
+  dragging = true;
   const t = e.touches[0];
   const rect = canvas.getBoundingClientRect();
-  touchStartX = (t.clientX - rect.left) * (GAME_W / rect.width);
-  touchStartY = (t.clientY - rect.top)  * (GAME_H / rect.height);
+  dragStartX = (t.clientX - rect.left) * (GAME_W / rect.width);
+  dragStartY = (t.clientY - rect.top)  * (GAME_H / rect.height);
 });
-canvas.addEventListener('touchend', e => {
-  if (e.changedTouches.length !== 1) return;
-  const t = e.changedTouches[0];
+
+canvas.addEventListener('touchmove', e => {
+  if (!dragging || e.touches.length !== 1) return;
+  const t = e.touches[0];
   const rect = canvas.getBoundingClientRect();
-  const endX = (t.clientX - rect.left) * (GAME_W / rect.width);
-  const endY = (t.clientY - rect.top)  * (GAME_H / rect.height);
-  const dx = endX - touchStartX;
-  const dy = endY - touchStartY;
-  const threshold = 30;
-  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
-    if (dx > 0)      player.x += player.speed * 12;
-    else             player.x -= player.speed * 12;
-  } else if (Math.abs(dy) > threshold) {
-    if (dy > 0)      player.y += player.speed * 12;
-    else             player.y -= player.speed * 12;
-  }
-  player.x = Math.max(0, Math.min(GAME_W - player.width, player.x));
-  player.y = Math.max(0, Math.min(GAME_H - player.height, player.y));
+  const currentX = (t.clientX - rect.left) * (GAME_W / rect.width);
+  const currentY = (t.clientY - rect.top)  * (GAME_H / rect.height);
+  // Option 1: Absolute drag (cat follows finger, clamp to canvas)
+  player.x = Math.max(0, Math.min(GAME_W - player.width, currentX - player.width/2));
+  player.y = Math.max(0, Math.min(GAME_H - player.height, currentY - player.height/2));
+  e.preventDefault();
+}, {passive:false});
+
+canvas.addEventListener('touchend', e => {
+  dragging = false;
 });
 
 // --- Prevent scrolling on mobile when swiping the canvas ---
@@ -1012,3 +1012,4 @@ showTutorial = function(){};
 
 </body>
 </html>
+
