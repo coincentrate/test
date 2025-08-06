@@ -561,22 +561,36 @@ let isPaused = false;
 // --- PAUSE OVERLAY ---
 function showPauseOverlay() {
   if (document.getElementById('pauseOverlay')) return;
+  // Copy the inner HTML of the indexBox for reuse
+  const indexHTML = document.getElementById('indexBox').innerHTML;
+
   const div = document.createElement('div');
   div.id = 'pauseOverlay';
   div.style = `
     position:fixed; inset:0; z-index:9100; display:flex; align-items:center; justify-content:center;
-    background:rgba(20,16,50,0.75); transition:opacity .25s; pointer-events:auto;`;
+    background:rgba(20,16,50,0.82); transition:opacity .25s; pointer-events:auto;`;
+
   div.innerHTML = `
-    <div style="padding:38px 54px 32px 54px; background:rgba(38,22,68,0.99); border-radius:36px; box-shadow:0 8px 56px #27e0e070, 0 1.5px 18px #23104d60; text-align:center; min-width:260px;">
+    <div style="padding:38px 36px 36px 36px; background:rgba(38,22,68,0.98); border-radius:36px; box-shadow:0 8px 56px #27e0e070, 0 1.5px 18px #23104d60; text-align:center; min-width:320px; max-width:96vw;">
       <div style="font-size:2.6rem; font-family:'Rajdhani',Arial,sans-serif; color:#6fffe6; font-weight:900; letter-spacing:2.2px; text-shadow:0 4px 26px #27e0e093;">PAUSED</div>
-      <div style="margin-top:18px; color:#b5b2ec; font-size:1.1em; letter-spacing:0.8px;">Press <b>P</b> or <b>ESC</b> to resume</div>
-    </div>`;
+      <div style="margin:16px 0 22px 0; color:#b5b2ec; font-size:1.1em; letter-spacing:0.8px;">Press <b>P</b> or <b>ESC</b> to resume</div>
+       <h2 style="color:#ffef80; margin-top:0; margin-bottom:18px;">${indexHTML}</h2>
+        
+      </div>`;
   document.body.appendChild(div);
+}
+
+function setBottomBarPaused(isPaused) {
+  const bar = document.getElementById('bottomBar');
+  if (!bar) return;
+  if (isPaused) bar.classList.add('paused');
+  else bar.classList.remove('paused');
 }
 function hidePauseOverlay() {
   const o = document.getElementById('pauseOverlay');
   if (o) o.remove();
 }
+
 
 // --- PAUSE LOGIC ---
 window.addEventListener('keydown', function(e) {
@@ -584,16 +598,18 @@ window.addEventListener('keydown', function(e) {
   if ((e.code === 'KeyP' || e.code === 'Escape') && !isPaused) {
     isPaused = true;
     showPauseOverlay();
+    setBottomBarPaused(true);      // <<--- ADD THIS
   } else if ((e.code === 'KeyP' || e.code === 'Escape') && isPaused) {
     isPaused = false;
     hidePauseOverlay();
+    setBottomBarPaused(false);     // <<--- ADD THIS
     requestAnimationFrame(loop);
   }
-  // Prevent game control while paused
   if (isPaused && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) {
     e.preventDefault();
   }
 });
+
 // ============== GAME OVER & RANKING OVERLAY ==============
 function showGameOverOverlay(finalScore) {
   if (document.getElementById('gameOverScreen')) return;
