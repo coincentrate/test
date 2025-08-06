@@ -808,6 +808,9 @@ function getLastScore() {
 
 const GAME_W = 1366, GAME_H = 768;
 const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+const centerX = GAME_W/2, centerY = GAME_H/2;
+
 function resizeGameCanvasForScreen() {
   // Target game resolution
   const aspect = 1366 / 768;
@@ -827,9 +830,6 @@ function resizeGameCanvasForScreen() {
 window.addEventListener('resize', resizeGameCanvasForScreen);
 window.addEventListener('orientationchange', resizeGameCanvasForScreen);
 resizeGameCanvasForScreen();
-
-const ctx    = canvas.getContext('2d');
-const centerX = GAME_W/2, centerY = GAME_H/2;
 
 // Video element for background
 const bgVideo = document.getElementById('bgVideo');
