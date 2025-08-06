@@ -326,6 +326,21 @@
       #scoreBox { font-size: 1.08rem; }
     }
 
+    @media (max-width: 800px), (orientation: portrait) {
+    #gameCanvas {
+    width: 98vw !important;
+    height: 62vw !important;  /* Or use aspect-ratio if supported */
+    max-width: 100vw !important;
+    max-height: 75vh !important;
+    aspect-ratio: 9/16; /* Portrait! */
+    border-radius: 12px;
+    }
+    #gameArea {
+    min-height: 68vw !important;
+    }
+}
+
+
     /* GAME OVER Overlay */
 #gameOverScreen {
   position: fixed;
@@ -774,6 +789,18 @@ const centerX = GAME_W/2, centerY = GAME_H/2;
 
 // Video element for background
 const bgVideo = document.getElementById('bgVideo');
+function updateBackgroundForOrientation() {
+  if (window.innerHeight > window.innerWidth) {
+    bgVideo.src = 'assets/background-portrait.mp4';
+  } else {
+    bgVideo.src = 'assets/background.mp4';
+  }
+  bgVideo.load();
+  bgVideo.play().catch(()=>{});
+}
+updateBackgroundForOrientation();
+window.addEventListener('resize', updateBackgroundForOrientation);
+window.addEventListener('orientationchange', updateBackgroundForOrientation);
 bgVideo.play().catch(()=>{});
 document.body.addEventListener('click', ()=> {
   if (bgVideo.paused) bgVideo.play();
@@ -1012,4 +1039,3 @@ showTutorial = function(){};
 
 </body>
 </html>
-
