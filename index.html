@@ -392,6 +392,27 @@
   color: #231a49;
   box-shadow: 0 4px 44px #b181ff33, 0 2px 16px #44ffe932;
 }
+#scoresBtn {
+  font-family: 'Rajdhani', Arial, sans-serif;
+  font-size: 1.28rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 15px 46px;
+  border: none; border-radius: 36px;
+  background: linear-gradient(90deg, #4ed8e7 40%, #8e7cf3 100%);
+  color: #191932;
+  box-shadow: 0 2px 24px #5ce8ec55, 0 1.5px 12px #19193212;
+  cursor: pointer;
+  outline: none;
+  margin-top: 18px;
+  transition: background 0.18s, box-shadow 0.18s, color 0.16s;
+  filter: drop-shadow(0 1px 8px #00e6ff25);
+}
+#scoresBtn:hover, #restartBtn:focus {
+  background: linear-gradient(90deg, #71fbe9 30%, #e2a1ff 100%);
+  color: #231a49;
+  box-shadow: 0 4px 44px #b181ff33, 0 2px 16px #44ffe932;
+}
 
   </style>
 </head>
@@ -573,20 +594,23 @@ window.addEventListener('keydown', function(e) {
     e.preventDefault();
   }
 });
-// ============== GAME OVER OVERLAY ==============
+// ============== GAME OVER & RANKING OVERLAY ==============
 function showGameOverOverlay(finalScore) {
   if (document.getElementById('gameOverScreen')) return;
 
   const overlay = document.createElement('div');
   overlay.id = 'gameOverScreen';
   overlay.innerHTML = `
-    <div class="aurora-bg"></div>
-    <div id="gameOverContent">
-      <div id="gameOverTitle">GAME OVER</div>
-      <div id="finalScoreBox">Score: ${finalScore}</div>
-      <button id="restartBtn">Restart</button>
+  <div class="aurora-bg"></div>
+  <div id="gameOverContent">
+    <div id="gameOverTitle">GAME OVER</div>
+    <div id="finalScoreBox">Score: ${finalScore}</div>
+    <div style="display: flex; gap: 28px; margin-top:18px;">
+      <button class="entrance-btn" id="restartBtn">Restart</button>
+      <button class="entrance-btn" id="scoresBtn">Scores</button>
     </div>
-  `;
+  </div>
+`;
   document.body.appendChild(overlay);
 
   document.getElementById('restartBtn').onclick = function() {
@@ -595,6 +619,9 @@ function showGameOverOverlay(finalScore) {
     resetGame();
     gameState = 'playing';
     requestAnimationFrame(loop);
+  };
+  document.getElementById('scoresBtn').onclick = function() {
+    showScoreInputModal(finalScore);
   };
 }
 
@@ -605,6 +632,122 @@ function hideGameOverOverlay() {
   overlay.style.pointerEvents = 'none';
   setTimeout(() => overlay.remove(), 350);
 }
+
+// ==== SCORE INPUT MODAL ====
+function showScoreInputModal(finalScore) {
+  if (document.getElementById('scoreInputModal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'scoreInputModal';
+  modal.style = `
+    position:fixed; inset:0; z-index:9500; display:flex; align-items:center; justify-content:center;
+    background:rgba(22,13,35,0.93);
+    transition: opacity .25s;
+  `;
+  modal.innerHTML = `
+    <div style="position:relative; background:rgba(30,20,48,0.99); border-radius:28px; box-shadow:0 8px 56px #371e90bb; padding:38px 36px 32px 36px; min-width: 280px; text-align:center;">
+      <div style="font-family:'Rajdhani',Arial,sans-serif; font-size:1.55em; font-weight:700; color:#ffe99e; margin-bottom:18px;">
+        Your Score: <span style="color:#fff; font-weight:900;">${finalScore}</span>
+      </div>
+      <div style="margin-bottom:18px; color:#c8ddfc;">Enter your name to save your score:</div>
+      <input id="scoreNameInput" maxlength="16" style="font-size:1.13em; border-radius:11px; padding:8px 14px; outline:none; border:none; background:#241e34; color:#fff; margin-bottom:15px; width:75%;" placeholder="Name/Nickname" />
+      <div style="display:flex; gap:18px; justify-content:center; margin-top:8px;">
+        <button class="entrance-btn" id="saveScoreBtn">Save Score</button>
+        <button class="entrance-btn" id="cancelScoreBtn" style="background:#66577a; color:#fff;">Cancel</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('scoreNameInput').focus();
+
+  document.getElementById('saveScoreBtn').onclick = function() {
+    const name = document.getElementById('scoreNameInput').value.trim().slice(0, 16) || "Anon";
+    saveLocalLeaderboardScore(name, finalScore);
+    hideScoreInputModal();
+    showLeaderboardOverlay();
+  };
+  document.getElementById('cancelScoreBtn').onclick = function() {
+    hideScoreInputModal();
+    // Return to game over overlay (if it was removed)
+    if (!document.getElementById('gameOverScreen')) showGameOverOverlay(finalScore);
+  };
+}
+
+function hideScoreInputModal() {
+  const modal = document.getElementById('scoreInputModal');
+  if (modal) modal.remove();
+}
+
+// ==== LOCAL LEADERBOARD ====
+function saveLocalLeaderboardScore(name, score) {
+  let scores = JSON.parse(localStorage.getItem("meowkyway_leaderboard") || "[]");
+  scores.push({ name, score });
+  scores = scores.sort((a, b) => b.score - a.score).slice(0, 10);
+  localStorage.setItem("meowkyway_leaderboard", JSON.stringify(scores));
+}
+
+function showLeaderboardOverlay() {
+  if (document.getElementById('leaderboardOverlay')) return;
+
+  const scores = JSON.parse(localStorage.getItem("meowkyway_leaderboard") || "[]");
+  let tableRows = scores.length
+    ? scores.map((s, i) =>
+        `<tr>
+          <td style="font-weight:800; color:#ffe99e;">${i + 1}.</td>
+          <td style="text-align:left; color:#fff;">${escapeHtml(s.name)}</td>
+          <td style="text-align:right; font-family:'Share Tech Mono',Arial,sans-serif; color:#ffe99e;">${s.score}</td>
+        </tr>`
+      ).join("")
+    : `<tr><td colspan="3" style="color:#bbb; text-align:center;">No scores yet</td></tr>`;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'leaderboardOverlay';
+  overlay.style = `
+    position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center;
+    background:rgba(20,16,50,0.85); transition:opacity .25s;
+  `;
+  overlay.innerHTML = `
+    <div style="position:relative; background:rgba(34,22,68,0.97); border-radius:36px; box-shadow:0 12px 56px #462d6d80, 0 1.5px 18px #23104d33; padding:38px 36px 32px 36px; min-width:320px; max-width:92vw; text-align:center;">
+      <div style="font-size:2.1rem; font-family:'Rajdhani',Arial,sans-serif; font-weight:900; letter-spacing:2.2px; color:#f7e99a; margin-bottom:14px; text-shadow:0 3px 18px #ffe99e55;">Leaderboard</div>
+      <table style="width:100%; border-collapse:collapse; margin:0 0 18px 0;">
+        <thead><tr><th style="color:#c0cafb; text-align:left;">#</th><th style="color:#c0cafb; text-align:left;">Name</th><th style="color:#c0cafb; text-align:right;">Score</th></tr></thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+      <button class="entrance-btn" id="closeLeaderboardBtn" style="margin-top:8px;">Close</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.getElementById('closeLeaderboardBtn').onclick = function() {
+    hideLeaderboardOverlay();
+    // Return to Game Over overlay
+    if (!document.getElementById('gameOverScreen')) showGameOverOverlay(getLastScore());
+  };
+}
+
+// Helper for XSS safety
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, function(m) {
+    return ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m];
+  });
+}
+function hideLeaderboardOverlay() {
+  const overlay = document.getElementById('leaderboardOverlay');
+  if (overlay) overlay.remove();
+}
+// Helper to return last score shown on Game Over (used for returning overlay after closing leaderboard)
+function getLastScore() {
+  const box = document.getElementById('finalScoreBox');
+  if (!box) return 0;
+  const txt = box.textContent || '';
+  const m = txt.match(/Score:\s*([0-9]+)/);
+  return m ? +m[1] : 0;
+}
+
 
 // ================= GAME LOGIC (UNCHANGED) =================
 
