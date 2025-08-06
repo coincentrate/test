@@ -806,31 +806,46 @@ function getLastScore() {
 
 // ================= GAME LOGIC (UNCHANGED) =================
 
-const GAME_W = 1366, GAME_H = 768;
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
-const centerX = GAME_W/2, centerY = GAME_H/2;
+
+let GAME_W = 1366, GAME_H = 768;
+let centerX = GAME_W / 2, centerY = GAME_H / 2;
+
+function setGameDimensionsByOrientation() {
+  // Portrait = 9:16, Landscape = 16:9
+  if (window.innerHeight > window.innerWidth) {
+    GAME_W = 768;
+    GAME_H = 1366;
+  } else {
+    GAME_W = 1366;
+    GAME_H = 768;
+  }
+  centerX = GAME_W / 2;
+  centerY = GAME_H / 2;
+}
 
 function resizeGameCanvasForScreen() {
-  // Target game resolution
-  const aspect = 1366 / 768;
+  setGameDimensionsByOrientation();
+  const aspect = GAME_W / GAME_H;
   const availW = window.innerWidth;
   const availH = window.innerHeight;
-  let newW = availW;
-  let newH = availW / aspect;
+  let newW = availW, newH = availW / aspect;
   if (newH > availH) {
     newH = availH;
     newW = newH * aspect;
   }
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
   canvas.style.width = newW + "px";
   canvas.style.height = newH + "px";
   canvas.style.display = "block";
   canvas.style.margin = "auto";
 }
+
 window.addEventListener('resize', resizeGameCanvasForScreen);
 window.addEventListener('orientationchange', resizeGameCanvasForScreen);
 resizeGameCanvasForScreen();
-
 // Video element for background
 const bgVideo = document.getElementById('bgVideo');
 function updateBackgroundForOrientation() {
@@ -849,6 +864,7 @@ bgVideo.play().catch(()=>{});
 document.body.addEventListener('click', ()=> {
   if (bgVideo.paused) bgVideo.play();
 });
+
 
 
 // Asset loading
