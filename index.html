@@ -861,6 +861,14 @@ canvas.addEventListener('touchend', e => {
   player.y = Math.max(0, Math.min(GAME_H - player.height, player.y));
 });
 
+// --- Prevent scrolling on mobile when swiping the canvas ---
+const gameArea = document.getElementById('gameArea');
+['touchstart','touchmove','touchend'].forEach(ev => {
+  gameArea.addEventListener(ev, function(e) {
+    e.preventDefault();
+  }, { passive: false });
+});
+
 // input (desktop only)
 window.addEventListener('keydown', e => {
   if (gameState === 'playing') {
