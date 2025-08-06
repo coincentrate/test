@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
   <title>MeowkyWay: Spiral Surge</title>
   <style>
   html, body {
@@ -338,7 +340,34 @@
     #gameArea {
     min-height: 68vw !important;
     }
+    }
+    @media (max-width: 700px), (max-device-width: 700px) {
+  #gameArea {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    min-width: 100vw;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    background: #0a0a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  #gameCanvas {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #141452;
+  }
 }
+
 
 
     /* GAME OVER Overlay */
@@ -805,6 +834,33 @@ bgVideo.play().catch(()=>{});
 document.body.addEventListener('click', ()=> {
   if (bgVideo.paused) bgVideo.play();
 });
+
+function fitGameCanvasToMobile() {
+  if (window.innerWidth <= 700 || window.innerHeight <= 700) {
+    // Use window's width/height (accounting for some mobile browsers' UI bars)
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
+    // Optionally, if you want a fixed portrait aspect, uncomment:
+    // if (h < w) { [w, h] = [h, w]; }
+
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+  } else {
+    // Desktop: set to default
+    canvas.width = 1366;
+    canvas.height = 768;
+    canvas.style.width = '100vw';
+    canvas.style.height = 'auto';
+  }
+}
+
+fitGameCanvasToMobile();
+window.addEventListener('resize', fitGameCanvasToMobile);
+window.addEventListener('orientationchange', fitGameCanvasToMobile);
+
 
 // Asset loading
 const ASSETS = {
