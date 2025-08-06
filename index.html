@@ -6,73 +6,264 @@
   <title>MeowkyWay: Spiral Surge</title>
   <style>
     html, body {
-      height: 100%; width: 100%;
-      margin: 0; overflow: hidden;
-      background: #0a0a2a;
-    }
-    body { background: #0a0a2a; }
-    #gameCanvas {
-      display: block;
-      margin: auto;
-      background: #141452;
-      touch-action: none;
-      width: 100vw;
-      height: 100vh;
-      max-width: 100vw;
-      max-height: 100vh;
-    }
-    #resetBtn {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      padding:10px 20px; font-size:18px;
-      display:none; z-index:1;
-    }
-    #bgVideo { display: none; }
+  width: 100vw; height: 100vh; margin: 0; padding: 0; background: #09092e;
+  box-sizing: border-box;
+}
+
+#gameFrame {
+  width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+#topBar, #bottomBar {
+  width: 100%;
+  margin: 0;
+  max-width: none;
+}
+
+#topBar {
+  background: #1b1b40;
+  color: #fff;
+  padding: 16px 0 10px 0;
+  text-align: center;
+  border-bottom: 2px solid #282875;
+  box-sizing: border-box;
+}
+
+#gameTitle {
+  font-size: 2.1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 8px #000c;
+}
+
+#topInfo {
+  font-size: 1.15rem;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+#scoreBox {
+  font-weight: bold;
+  color: #ffea00;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 4px #282875b0;
+}
+
+#gameArea {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  background: #0a0a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+#gameCanvas {
+  display: block;
+  background: #141452;
+  box-shadow: 0 8px 32px #000b, 0 0 0 8px #0a0a2a;
+  border-radius: 16px;
+  /* Responsive magic: */
+  width: 100vw;
+  height: auto;
+  max-width: 100vw;
+  max-height: calc(100vh - 190px); /* leaves space for top & bottom bars */
+  aspect-ratio: 16 / 9;
+}
+
+#resetBtn {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  padding:10px 20px; font-size:18px;
+  display:none; z-index:2;
+}
+
+#bottomBar {
+  background: #1b1b40;
+  color: #fff;
+  padding: 8px 8px 12px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: flex-start;
+  border-top: 2px solid #282875;
+  box-sizing: border-box;
+  min-height: unset;
+  height: auto;
+}
+
+/* Index and Ranking styles, unchanged from your latest version */
+#indexBox {
+  flex: 1 1 320px;
+  min-width: 180px;
+  max-width: 100vw;
+  margin: 0 8px;
+}
+#indexBox h2 {
+  font-size: 1.1rem;
+  margin: 0 0 7px 0;
+  text-align: left;
+}
+.index-row-one-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.index-group {
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  border-radius: 10px;
+  padding: 4px 10px 4px 7px;
+  align-items: center;
+}
+.obstacle-group {
+  background: linear-gradient(90deg, #a40b3f 85%, #3b1a2b 100%);
+  border: 1.5px solid #ff6172;
+  box-shadow: 0 2px 10px #a40b3f44 inset;
+}
+.powerup-group {
+  background: linear-gradient(90deg, #198b44 85%, #1b3b1f 100%);
+  border: 1.5px solid #23e068;
+  box-shadow: 0 2px 10px #198b4444 inset;
+}
+.index-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  padding: 2px 5px 2px 5px;
+  font-size: 14px;
+  min-width: 60px;
+  max-width: 72px;
+  margin: 0;
+}
+.index-icon {
+  width: 26px; height: 26px; margin-bottom: 2px;
+  border-radius: 7px;
+  background: #333;
+}
+.index-desc {
+  color: #bbb;
+  font-size: 11px;
+}
+#rankingBox {
+  flex: 1 1 160px;
+  min-width: 120px;
+  max-width: 200px;
+  margin: 0 8px;
+}
+#rankingBox h2, #indexBox h2 {
+  font-size: 1.25rem;
+  margin: 0 0 10px 0;
+  text-shadow: 0 1px 4px #000c;
+}
+#rankingList { margin: 0 0 10px 16px; padding: 0; }
+
+@media (max-width: 900px) {
+  #bottomBar { flex-direction: column; align-items: stretch; }
+  #indexBox, #rankingBox { margin: 0 0 10px 0; max-width: 99vw; }
+  .index-row-one-line { flex-wrap: wrap; gap: 7px; }
+  .index-group { gap: 4px; padding: 2px 5px 2px 5px; }
+  #gameCanvas {
+    max-width: 99vw;
+    max-height: 38vh;
+  }
+}
+
+
   </style>
 </head>
 <body>
-  <video id="bgVideo" src="assets/background.mp4" loop autoplay muted playsinline style="display:none"></video>
-  <canvas id="gameCanvas" width="1366" height="768"></canvas>
-  <button id="resetBtn">Restart</button>
+  <!-- Video background (hidden, drawn in canvas) -->
+  <div id="gameFrame">
+    <div id="topBar">
+      <div id="gameTitle">MEOWKYWAY: Spiral Surge</div>
+      <div id="topInfo">
+        <span id="scoreBox">Score: 0</span>
+        <!-- Add any icons/legend here if you want in the top bar -->
+      </div>
+    </div>
+    <div id="gameArea">
+      <video id="bgVideo" src="assets/background.mp4" loop autoplay muted playsinline style="display:none"></video>
+      <canvas id="gameCanvas" width="1366" height="768"></canvas>
+      <button id="resetBtn">Restart</button>
+    </div>
+     <div id="bottomBar">
+      <div id="rankingBox">
+        <h2>Top Degens</h2>
+        <ol id="rankingList"></ol>
+      </div>
+     <div id="indexBox">
+  <h2>Game Index</h2>
+  <div class="index-row-one-line">
+    <div class="index-group obstacle-group">
+      <div class="index-cell">
+        <img src="assets/obstacles/obstacle_rugpull.png" class="index-icon">
+        <div>BlackHole Pull<br><span class="index-desc">Death</span></div>
+      </div>
+      <div class="index-cell">
+        <img src="assets/obstacles/obstacle_fud.png" class="index-icon">
+        <div>FUD Drop<br><span class="index-desc">Death</span></div>
+      </div>
+      <div class="index-cell">
+        <img src="assets/obstacles/obstacle_jeeter.png" class="index-icon">
+        <div>Jeeteorite<br><span class="index-desc">Death</span></div>
+      </div>
+    </div>
+    <div class="index-group powerup-group">
+      <div class="index-cell">
+        <img src="assets/powerUps/pu_double2.png" class="index-icon">
+        <div>Cosmic Milk<br><span class="index-desc">Double Score</span></div>
+      </div>
+      <div class="index-cell">
+        <img src="assets/powerUps/pu_double3.png" class="index-icon">
+        <div>MeowkShake<br><span class="index-desc">Triple Score</span></div>
+      </div>
+      <div class="index-cell">
+        <img src="assets/powerUps/pu_invincible.png" class="index-icon">
+        <div>Milk Spiral<br><span class="index-desc">Temporary Shield</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+    </div>
+  </div>
   <script>
+    // Logic/game resolution (never changes!)
     const GAME_W = 1366, GAME_H = 768;
     const canvas = document.getElementById('gameCanvas');
     const ctx    = canvas.getContext('2d');
+    // always draw at logic/game res
+    const centerX = GAME_W/2, centerY = GAME_H/2;
     let displayScale = 1;
 
-    // --- Define menu/tutorial buttons (no centerX) ---
-    function getMenuButtons() {
-      const centerX = GAME_W / 2, centerY = GAME_H / 2;
-      return [
-        {text: "Start",    x: centerX-100, y: centerY+30, w: 200, h: 50, action: ()=>{gameState='playing'; resetGame();}},
-        {text: "Tutorial", x: centerX-100, y: centerY+100, w: 200, h: 50, action: ()=>{gameState='tutorial';}}
-      ];
-    }
-    function getTutorialButton() {
-      const centerX = GAME_W / 2;
-      return [
-        {text: "Back to Menu", x: centerX-100, y: GAME_H-100, w: 200, h: 50, action: ()=>{gameState='menu';}}
-      ];
-    }
-    function handleMenuButton(x, y) {
-      getMenuButtons().forEach(btn => {
-        if (x >= btn.x && x <= btn.x + btn.w &&
-            y >= btn.y && y <= btn.y + btn.h) {
-          btn.action();
-        }
-      });
-    }
-    function handleTutorialButton(x, y) {
-      getTutorialButton().forEach(btn => {
-        if (x >= btn.x && x <= btn.x + btn.w &&
-            y >= btn.y && y <= btn.y + btn.h) {
-          btn.action();
-        }
-      });
-    }
+    // Video element for background
+    const bgVideo = document.getElementById('bgVideo');
+    bgVideo.play().catch(()=>{});
+    document.body.addEventListener('click', ()=> {
+      if (bgVideo.paused) bgVideo.play();
+    });
 
     // --- Responsive canvas scale (CSS only) ---
     function resizeCanvas() {
+      // CSS scale canvas to fill screen, preserving aspect
       const windowW = window.innerWidth, windowH = window.innerHeight;
       const scale = Math.min(windowW / GAME_W, windowH / GAME_H);
       canvas.style.width = (GAME_W * scale) + 'px';
@@ -82,20 +273,15 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Video
-    const bgVideo = document.getElementById('bgVideo');
-    bgVideo.play().catch(()=>{});
-    document.body.addEventListener('click', ()=> {
-      if (bgVideo.paused) bgVideo.play();
-    });
-
-    // assets, images, etc. (unchanged)
+    // asset lists
     const ASSETS = {
       cat: ['cat_idle.png'],
       obstacles: ['obstacle_rugpull.png','obstacle_fud.png','obstacle_jeeter.png'],
       powerUps: ['pu_double2.png','pu_double3.png','pu_invincible.png'],
       background: ['nebula_tile.png']
     };
+
+    // loaded images
     const images = {};
     let toLoad = 0;
     for (let group in ASSETS) {
@@ -110,7 +296,7 @@
     }
 
     // game vars
-    const player = { x: GAME_W/2-32, y: GAME_H-100, width:64, height:102, vx:0, vy:0, speed:4 };
+    const player = { x: centerX-32, y: GAME_H-100, width:64, height:102, vx:0, vy:0, speed:4 };
     let keys = {}, gameState = 'menu', frame = 0, score = 0, lastScoreFrame = 0, scoreMultiplier = 1,
         nextSpeedThreshold = 10, puTimers = {double2:0,double3:0,invincible:0}, lastPUFrame = -600, minPUInterval = 600,
         obstacleSpeedFactor = 1, puSpeedFactor = 1, playerSpeedIncrement = 1.08, obstacleSpeedIncrement = 1.04,
@@ -118,17 +304,13 @@
         gameOver = false, bgAngle = 0;
 
     // Precompute spiral points
-    let spiral = [];
-    function makeSpiral() {
-      spiral = [];
-      const centerX = GAME_W/2, centerY = GAME_H/2;
+    const spiral = [];
+    {
       const maxR = Math.sqrt(centerX*centerX + centerY*centerY);
       const pts = 100;
       for (let i = 0; i < pts; i++) spiral.push({ angle: i * 0.3, r: (i/pts)*maxR });
     }
-    makeSpiral();
 
-    // Reset button
     const resetBtn = document.getElementById('resetBtn');
     resetBtn.addEventListener('click', ()=>{
       resetBtn.style.display = 'none';
@@ -139,244 +321,41 @@
     });
 
     function startGame(){
-      showMenu();
+      resetGame();         // <-- Reset everything to base values
       requestAnimationFrame(loop);
     }
 
-    // --- MENU & TUTORIAL BUTTONS: desktop (mouse) support ---
-    canvas.addEventListener('mousedown', e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) * (GAME_W / rect.width);
-      const my = (e.clientY - rect.top) * (GAME_H / rect.height);
-      if (gameState === 'menu') {
-        handleMenuButton(mx, my);
-      } else if (gameState === 'tutorial') {
-        handleTutorialButton(mx, my);
-      }
-    });
-
-    // --- DRAG-TO-MOVE MOBILE CONTROL ---
-    let touchStartX = 0, touchStartY = 0, dragging = false;
+    // --- SWIPE CONTROL (Mobile, mapped to virtual/game coords) ---
+    let touchStartX = 0, touchStartY = 0;
     canvas.addEventListener('touchstart', e => {
       if (e.touches.length !== 1) return;
       const t = e.touches[0];
+      // Map to canvas coords
       const rect = canvas.getBoundingClientRect();
       touchStartX = (t.clientX - rect.left) * (GAME_W / rect.width);
       touchStartY = (t.clientY - rect.top)  * (GAME_H / rect.height);
-
-      if (gameState === 'playing') dragging = true;
-    });
-    canvas.addEventListener('touchmove', e => {
-      if (!dragging || e.touches.length !== 1) return;
-      const t = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const moveX = (t.clientX - rect.left) * (GAME_W / rect.width);
-      const moveY = (t.clientY - rect.top)  * (GAME_H / rect.height);
-
-      let dx = moveX - touchStartX;
-      let dy = moveY - touchStartY;
-      let dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist > 8) {
-        player.vx = (dx/dist) * player.speed;
-        player.vy = (dy/dist) * player.speed;
-      } else {
-        player.vx = 0;
-        player.vy = 0;
-      }
     });
     canvas.addEventListener('touchend', e => {
+      if (e.changedTouches.length !== 1) return;
       const t = e.changedTouches[0];
       const rect = canvas.getBoundingClientRect();
       const endX = (t.clientX - rect.left) * (GAME_W / rect.width);
       const endY = (t.clientY - rect.top)  * (GAME_H / rect.height);
-
-      if (gameState === 'menu') {
-        handleMenuButton(endX, endY);
-        return;
+      const dx = endX - touchStartX;
+      const dy = endY - touchStartY;
+      const threshold = 30;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+        if (dx > 0)      player.x += player.speed * 12;
+        else             player.x -= player.speed * 12;
+      } else if (Math.abs(dy) > threshold) {
+        if (dy > 0)      player.y += player.speed * 12;
+        else             player.y -= player.speed * 12;
       }
-      if (gameState === 'tutorial') {
-        handleTutorialButton(endX, endY);
-        return;
-      }
-      // End drag-move
-      dragging = false;
-      player.vx = 0; player.vy = 0;
+      player.x = Math.max(0, Math.min(GAME_W - player.width, player.x));
+      player.y = Math.max(0, Math.min(GAME_H - player.height, player.y));
     });
 
-    // --- Menu Draw (uses latest button positions) ---
-    function drawMenu() {
-      ctx.clearRect(0,0,GAME_W,GAME_H);
-      const centerX = GAME_W / 2, centerY = GAME_H / 2;
-      ctx.fillStyle='#fff'; ctx.font='40px Arial'; ctx.textAlign='center';
-      ctx.fillText('MEOWKYWAY: Spiral Surge', centerX, centerY-60);
-      ctx.font='20px Arial'; ctx.fillText('Enter: Start    T: Tutorial', centerX, centerY);
-
-      getMenuButtons().forEach(btn => {
-        ctx.fillStyle = '#2e3c70';
-        ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-        ctx.strokeStyle = '#fff';
-        ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-        ctx.fillStyle = '#fff';
-        ctx.font = '28px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(btn.text, btn.x + btn.w/2, btn.y + btn.h/2 + 10);
-      });
-    }
-
-    function drawTutorial() {
-      ctx.clearRect(0,0,GAME_W,GAME_H);
-      const centerX = GAME_W/2;
-      ctx.fillStyle='#fff'; ctx.font='30px Arial'; ctx.textAlign='center'; ctx.fillText('Tutorial', centerX,100);
-      ctx.font='18px Arial'; ctx.textAlign='left';
-      ['Arrow keys/swipe: move cat', 'Avoid obstacles', 'Collect power-ups:',
-        '- Pink (2X): double score', '- Purple (3X): triple score',
-        '- Gold (INV): invincibility', 'Score +1 per sec']
-        .forEach((l,i)=>ctx.fillText(l,50,160+i*30));
-      ctx.font='20px Arial'; ctx.textAlign='center'; ctx.fillText('Enter/Back: Back to Menu', centerX, GAME_H-60);
-
-      getTutorialButton().forEach(btn => {
-        ctx.fillStyle = '#2e3c70';
-        ctx.fillRect(btn.x, btn.y, btn.w, btn.h);
-        ctx.strokeStyle = '#fff';
-        ctx.strokeRect(btn.x, btn.y, btn.w, btn.h);
-        ctx.fillStyle = '#fff';
-        ctx.font = '26px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(btn.text, btn.x + btn.w/2, btn.y + btn.h/2 + 8);
-      });
-    }
-
-    function drawBackground(){
-      if (bgVideo.readyState >= 2 && !bgVideo.paused) {
-        ctx.drawImage(bgVideo, 0, 0, GAME_W, GAME_H);
-      } else {
-        ctx.fillStyle = "#141452";
-        ctx.fillRect(0,0,GAME_W,GAME_H);
-      }
-    }
-
-    function drawSpiral(){ 
-      spiralAngle += 0.02;
-      const centerX = GAME_W/2, centerY = GAME_H/2;
-      ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
-      spiral.forEach(pt=>{
-        const ang = pt.angle + spiralAngle;
-        const x = centerX + Math.cos(ang)*pt.r;
-        const y = centerY + Math.sin(ang)*pt.r;
-        ctx.beginPath(); ctx.arc(x,y,1,0,2*Math.PI); ctx.stroke();
-      });
-    }
-    function drawPlayer(){
-      ctx.drawImage(images['cat_idle.png'], player.x, player.y, player.width, player.height);
-    }
-    function drawObstacle(o){ ctx.drawImage(images['obstacle_'+o.type+'.png'], o.x, o.y, o.size, o.size); }
-    function drawPowerUp(p){ ctx.drawImage(images['pu_'+p.type+'.png'], p.x, p.y, p.size, p.size); }
-
-    class ObstacleClass { constructor(){
-        this.size=64; this.speed=3.5*obstacleSpeedFactor;
-        const centerX = GAME_W/2, centerY = GAME_H/2;
-        const o=Math.random();
-        if(o<0.2){ this.x=centerX-this.size/2; this.y=centerY-this.size/2; }
-        else if(o<0.4){ this.x=Math.random()*(GAME_W-this.size); this.y=-this.size; }
-        else if(o<0.6){ this.x=Math.random()*(GAME_W-this.size); this.y=GAME_H; }
-        else if(o<0.8){ this.x=-this.size; this.y=Math.random()*(GAME_H-this.size); }
-        else { this.x=GAME_W; this.y=Math.random()*(GAME_H-this.size); }
-        const tx=player.x+player.width/2, ty=player.y+player.height/2;
-        const ang=Math.atan2(ty-(this.y+this.size/2), tx-(this.x+this.size/2));
-        this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed;
-        this.type = Math.random()<0.33?'rugpull':(Math.random()<0.66?'fud':'jeeter'); }
-      update(){ this.x+=this.vx; this.y+=this.vy; }
-      offScreen(){ return this.x+this.size<0||this.x>GAME_W||this.y+this.size<0||this.y>GAME_H; }
-    }
-    class PowerUpClass { constructor(type){
-        this.size=64; this.speed=2.5*puSpeedFactor;
-        const centerX = GAME_W/2, centerY = GAME_H/2;
-        this.x=centerX-this.size/2; this.y=centerY-this.size/2;
-        const tx=player.x+player.width/2, ty=player.y+player.height/2;
-        const ang=Math.atan2(ty-centerY, tx-centerX);
-        this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed;
-        this.type=type; }
-      update(){ this.x+=this.vx; this.y+=this.vy; }
-      offScreen(){ return this.x+this.size<0||this.x>GAME_W||this.y+this.size<0||this.y>GAME_H; }
-    }
-
-        function resetGame(){ 
-      obstacles=[]; powerUps=[]; frame=0; score=0; lastScoreFrame=0; scoreMultiplier=1;
-      nextSpeedThreshold=10; puTimers={double2:0,double3:0,invincible:0}; lastPUFrame=-600;
-      obstacleSpeedFactor=1; puSpeedFactor=1; player.speed=4; player.x=GAME_W/2-32; player.y=GAME_H-100;
-      player.vx = 0; player.vy = 0;
-      gameOver=false; resetBtn.style.display='none'; 
-    }
-
-    function checkCollisions(){ 
-      obstacles.forEach((o,i)=>{
-        if(puTimers.invincible<=0 && player.x<o.x+o.size && player.x+player.width>o.x &&
-           player.y<o.y+o.size && player.y+player.height>o.y) gameOver=true; 
-      });
-      powerUps.forEach((p,i)=>{
-        if(player.x<p.x+p.size && player.x+player.width>p.x && player.y<p.y+p.size && player.y+player.height>p.y){
-          if(p.type==='double2') puTimers.double2=600;
-          if(p.type==='double3') puTimers.double3=900;
-          if(p.type==='invincible') puTimers.invincible=600;
-          powerUps.splice(i,1);
-        }
-      }); 
-    }
-
-    function loop(){
-      if(gameState==='menu'){ drawMenu(); requestAnimationFrame(loop); return; }
-      if(gameState==='tutorial'){ drawTutorial(); requestAnimationFrame(loop); return; }
-      if(gameOver){ 
-        ctx.fillStyle='red'; 
-        ctx.font='40px Arial'; 
-        const txt='GAME OVER', tw=ctx.measureText(txt).width; 
-        ctx.fillText(txt,(GAME_W-tw)/2,GAME_H/2); 
-        resetBtn.style.display='block'; 
-        return; 
-      }
-      ctx.clearRect(0,0,GAME_W,GAME_H);
-      drawBackground(); drawSpiral(); frame++;
-
-      // --- Desktop keys movement ---
-      player.x += (keys['ArrowLeft'] ? -player.speed : 0)
-               + (keys['ArrowRight'] ? player.speed : 0)
-               + (player.vx || 0);
-      player.y += (keys['ArrowUp'] ? -player.speed : 0)
-               + (keys['ArrowDown'] ? player.speed : 0)
-               + (player.vy || 0);
-
-      player.x = Math.max(0, Math.min(GAME_W-player.width, player.x));
-      player.y = Math.max(0, Math.min(GAME_H-player.height, player.y));
-
-      if(frame-lastScoreFrame>=60){ score+=scoreMultiplier; lastScoreFrame=frame; }
-      if(score>=nextSpeedThreshold){
-        player.speed=Math.min(maxPlayerSpeed, player.speed*playerSpeedIncrement);
-        obstacleSpeedFactor=Math.min(maxObstacleFactor, obstacleSpeedFactor*obstacleSpeedIncrement);
-        puSpeedFactor=Math.min(maxObstacleFactor, puSpeedFactor*obstacleSpeedIncrement);
-        nextSpeedThreshold+=10; 
-      }
-      scoreMultiplier = puTimers.double3>0?3:puTimers.double2>0?2:1;
-      if(puTimers.double2>0) puTimers.double2--; 
-      if(puTimers.double3>0) puTimers.double3--; 
-      if(puTimers.invincible>0) puTimers.invincible--;
-      const spawnI = Math.max(30,120-Math.floor(frame/600)); 
-      if(frame%spawnI===0) obstacles.push(new ObstacleClass());
-      if(frame-lastPUFrame>=minPUInterval && Math.random()<0.01){ 
-        const types=['double2','double3','invincible']; 
-        powerUps.push(new PowerUpClass(types[Math.floor(Math.random()*types.length)])); 
-        lastPUFrame=frame; 
-      }
-      obstacles.forEach((o,i)=>{ o.update(); drawObstacle(o); if(o.offScreen()) obstacles.splice(i,1); });
-      powerUps.forEach((p,i)=>{ p.update(); drawPowerUp(p); if(p.offScreen()) powerUps.splice(i,1); });
-      drawPlayer(); checkCollisions();
-      ctx.fillStyle='#fff'; ctx.font='16px Arial'; ctx.fillText('Score: '+score, GAME_W-140,20);
-      let yOff=40; if(puTimers.double2>0){ ctx.fillText('2X: '+Math.ceil(puTimers.double2/60)+'s', GAME_W-140,yOff); yOff+=20; }
-      if(puTimers.double3>0){ ctx.fillText('3X: '+Math.ceil(puTimers.double3/60)+'s', GAME_W-140,yOff); yOff+=20; }
-      if(puTimers.invincible>0){ ctx.fillText('INV: '+Math.ceil(puTimers.invincible/60)+'s', GAME_W-140,yOff); }
-      requestAnimationFrame(loop);
-    }
-
-    // Keyboard controls remain unchanged:
+    // input (desktop only)
     window.addEventListener('keydown', e => {
       if (gameState==='menu') return handleMenu(e);
       if (gameState==='tutorial') return handleTutorial(e);
@@ -393,10 +372,122 @@
       if(keys['ArrowDown']) player.vy=player.speed;
     }
 
+    // draw
+    function drawMenu(){ ctx.clearRect(0,0,GAME_W,GAME_H);
+      ctx.fillStyle='#fff'; ctx.font='40px Arial'; ctx.textAlign='center';
+      ctx.fillText('MEOWKYWAY: Spiral Surge', centerX, centerY-60);
+      ctx.font='20px Arial'; ctx.fillText('Enter: Start    T: Tutorial', centerX, centerY);
+    }
+    function drawTutorial(){ ctx.clearRect(0,0,GAME_W,GAME_H);
+      ctx.fillStyle='#fff'; ctx.font='30px Arial'; ctx.textAlign='center'; ctx.fillText('Tutorial', centerX,100);
+      ctx.font='18px Arial'; ctx.textAlign='left';
+      ['Arrow keys: move cat', 'Avoid obstacles', 'Collect power-ups:',
+       '- Pink (2X): double score', '- Purple (3X): triple score',
+       '- Gold (INV): invincibility', 'Score +1 per sec']
+      .forEach((l,i)=>ctx.fillText(l,50,160+i*30));
+      ctx.font='20px Arial'; ctx.textAlign='center'; ctx.fillText('Enter: Back to Menu', centerX, GAME_H-50);
+    }
+
+    function drawBackground(){
+      if (bgVideo.readyState >= 2 && !bgVideo.paused) {
+        ctx.drawImage(bgVideo, 0, 0, GAME_W, GAME_H);
+      } else {
+        ctx.fillStyle = "#141452";
+        ctx.fillRect(0,0,GAME_W,GAME_H);
+      }
+    }
+
+    function drawSpiral(){ spiralAngle += 0.02;
+      ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+      spiral.forEach(pt=>{
+        const ang = pt.angle + spiralAngle;
+        const x = centerX + Math.cos(ang)*pt.r;
+        const y = centerY + Math.sin(ang)*pt.r;
+        ctx.beginPath(); ctx.arc(x,y,1,0,2*Math.PI); ctx.stroke();
+      });
+    }
+    function drawPlayer(){
+      ctx.drawImage(images['cat_idle.png'], player.x, player.y, player.width, player.height);
+    }
+    function drawObstacle(o){ ctx.drawImage(images['obstacle_'+o.type+'.png'], o.x, o.y, o.size, o.size); }
+    function drawPowerUp(p){ ctx.drawImage(images['pu_'+p.type+'.png'], p.x, p.y, p.size, p.size); }
+
+    class ObstacleClass { constructor(){ this.size=64; this.speed=3.5*obstacleSpeedFactor;
+        const o=Math.random();
+        if(o<0.2){ this.x=centerX-this.size/2; this.y=centerY-this.size/2; }
+        else if(o<0.4){ this.x=Math.random()*(GAME_W-this.size); this.y=-this.size; }
+        else if(o<0.6){ this.x*Math.random()*(GAME_W-this.size); this.y=GAME_H; }
+        else if(o<0.8){ this.x=-this.size; this.y=Math.random()*(GAME_H-this.size); }
+        else { this.x=GAME_W; this.y=Math.random()*(GAME_H-this.size); }
+        const tx=player.x+player.width/2, ty=player.y+player.height/2;
+        const ang=Math.atan2(ty-(this.y+this.size/2), tx-(this.x+this.size/2));
+        this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed;
+        this.type = Math.random()<0.33?'rugpull':(Math.random()<0.66?'fud':'jeeter'); }
+      update(){ this.x+=this.vx; this.y+=this.vy; }
+      offScreen(){ return this.x+this.size<0||this.x>GAME_W||this.y+this.size<0||this.y>GAME_H; }
+    }
+    class PowerUpClass { constructor(type){ this.size=64; this.speed=2.5*puSpeedFactor;
+        this.x=centerX-this.size/2; this.y=centerY-this.size/2;
+        const tx=player.x+player.width/2, ty=player.y+player.height/2;
+        const ang=Math.atan2(ty-centerY, tx-centerX);
+        this.vx=Math.cos(ang)*this.speed; this.vy=Math.sin(ang)*this.speed;
+        this.type=type; }
+      update(){ this.x+=this.vx; this.y+=this.vy; }
+      offScreen(){ return this.x+this.size<0||this.x>GAME_W||this.y+this.size<0||this.y>GAME_H; }
+    }
+
+    function resetGame(){ obstacles=[]; powerUps=[]; frame=0; score=0; lastScoreFrame=0; scoreMultiplier=1;
+      nextSpeedThreshold=10; puTimers={double2:0,double3:0,invincible:0}; lastPUFrame=-600;
+      obstacleSpeedFactor=1; puSpeedFactor=1; player.speed=4; player.x=centerX-32; player.y=GAME_H-100;
+      gameOver=false; resetBtn.style.display='none'; }
+
+    function checkCollisions(){ obstacles.forEach((o,i)=>{
+        if(puTimers.invincible<=0 && player.x<o.x+o.size && player.x+player.width>o.x &&
+           player.y<o.y+o.size && player.y+player.height>o.y) gameOver=true; });
+      powerUps.forEach((p,i)=>{
+        if(player.x<p.x+p.size && player.x+player.width>p.x && player.y<p.y+p.size && player.y+player.height>p.y){
+          if(p.type==='double2') puTimers.double2=600;
+          if(p.type==='double3') puTimers.double3=900;
+          if(p.type==='invincible') puTimers.invincible=600;
+          powerUps.splice(i,1);
+        }
+      }); }
+
+    function loop(){
+      if(gameState==='menu'){ drawMenu(); requestAnimationFrame(loop); return; }
+      if(gameState==='tutorial'){ drawTutorial(); requestAnimationFrame(loop); return; }
+      if(gameOver){ ctx.fillStyle='red'; ctx.font='40px Arial'; const txt='GAME OVER', tw=ctx.measureText(txt).width; ctx.fillText(txt,(GAME_W-tw)/2,GAME_H/2); resetBtn.style.display='block'; return; }
+      ctx.clearRect(0,0,GAME_W,GAME_H);
+      drawBackground(); drawSpiral(); frame++;
+      if(keys['ArrowLeft']) player.x -= player.speed;
+      if(keys['ArrowRight']) player.x += player.speed;
+      if(keys['ArrowUp']) player.y -= player.speed;
+      if(keys['ArrowDown']) player.y += player.speed;
+      player.x = Math.max(0, Math.min(GAME_W-player.width, player.x));
+      player.y = Math.max(0, Math.min(GAME_H-player.height, player.y));
+      if(frame-lastScoreFrame>=60){ score+=scoreMultiplier; lastScoreFrame=frame; }
+      if(score>=nextSpeedThreshold){ player.speed=Math.min(maxPlayerSpeed, player.speed*playerSpeedIncrement);
+        obstacleSpeedFactor=Math.min(maxObstacleFactor, obstacleSpeedFactor*obstacleSpeedIncrement);
+        puSpeedFactor=Math.min(maxObstacleFactor, puSpeedFactor*obstacleSpeedIncrement);
+        nextSpeedThreshold+=10; }
+      scoreMultiplier = puTimers.double3>0?3:puTimers.double2>0?2:1;
+      if(puTimers.double2>0) puTimers.double2--; if(puTimers.double3>0) puTimers.double3--; if(puTimers.invincible>0) puTimers.invincible--;
+      const spawnI = Math.max(30,120-Math.floor(frame/600)); if(frame%spawnI===0) obstacles.push(new ObstacleClass());
+      if(frame-lastPUFrame>=minPUInterval&&Math.random()<0.01){ const types=['double2','double3','invincible']; powerUps.push(new PowerUpClass(types[Math.floor(Math.random()*types.length)])); lastPUFrame=frame; }
+      obstacles.forEach((o,i)=>{ o.update(); drawObstacle(o); if(o.offScreen()) obstacles.splice(i,1); });
+      powerUps.forEach((p,i)=>{ p.update(); drawPowerUp(p); if(p.offScreen()) powerUps.splice(i,1); });
+      drawPlayer(); checkCollisions();
+      ctx.fillStyle='#fff'; ctx.font='16px Arial'; ctx.fillText('Score: '+score, GAME_W-140,20);
+      let yOff=40; if(puTimers.double2>0){ ctx.fillText('2X: '+Math.ceil(puTimers.double2/60)+'s', GAME_W-140,yOff); yOff+=20; }
+      if(puTimers.double3>0){ ctx.fillText('3X: '+Math.ceil(puTimers.double3/60)+'s', GAME_W-140,yOff); yOff+=20; }
+      if(puTimers.invincible>0){ ctx.fillText('INV: '+Math.ceil(puTimers.invincible/60)+'s', GAME_W-140,yOff); }
+      requestAnimationFrame(loop);
+    }
+
+    // init
     function showMenu(){ gameState='menu'; }
     function showTutorial(){ gameState='tutorial'; }
-    // --- Do NOT call loop() here; handled by startGame after all assets load ---
-
+    showMenu(); loop();
   </script>
 </body>
 </html>
