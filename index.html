@@ -838,7 +838,7 @@ function fitGameCanvasToMobile() {
     let h = window.innerHeight;
 
     // Optionally, if you want a fixed portrait aspect, uncomment:
-    // if (h < w) { [w, h] = [h, w]; }
+    if (h < w) { [w, h] = [h, w]; }
 
     canvas.width = w;
     canvas.height = h;
@@ -1091,5 +1091,6 @@ showTutorial = function(){};
 
 </body>
 </html>
+
 
 
