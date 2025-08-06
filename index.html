@@ -808,6 +808,26 @@ function getLastScore() {
 
 const GAME_W = 1366, GAME_H = 768;
 const canvas = document.getElementById('gameCanvas');
+function resizeGameCanvasForScreen() {
+  // Target game resolution
+  const aspect = 1366 / 768;
+  const availW = window.innerWidth;
+  const availH = window.innerHeight;
+  let newW = availW;
+  let newH = availW / aspect;
+  if (newH > availH) {
+    newH = availH;
+    newW = newH * aspect;
+  }
+  canvas.style.width = newW + "px";
+  canvas.style.height = newH + "px";
+  canvas.style.display = "block";
+  canvas.style.margin = "auto";
+}
+window.addEventListener('resize', resizeGameCanvasForScreen);
+window.addEventListener('orientationchange', resizeGameCanvasForScreen);
+resizeGameCanvasForScreen();
+
 const ctx    = canvas.getContext('2d');
 const centerX = GAME_W/2, centerY = GAME_H/2;
 
@@ -829,32 +849,6 @@ bgVideo.play().catch(()=>{});
 document.body.addEventListener('click', ()=> {
   if (bgVideo.paused) bgVideo.play();
 });
-
-function fitGameCanvasToMobile() {
-  if (window.innerWidth <= 700 || window.innerHeight <= 700) {
-    // Use window's width/height (accounting for some mobile browsers' UI bars)
-    let w = window.innerWidth;
-    let h = window.innerHeight;
-
-    // Optionally, if you want a fixed portrait aspect, uncomment:
-    // if (h < w) { [w, h] = [h, w]; }
-
-    canvas.width = w;
-    canvas.height = h;
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-  } else {
-    // Desktop: set to default
-    canvas.width = 1366;
-    canvas.height = 768;
-    canvas.style.width = '100vw';
-    canvas.style.height = 'auto';
-  }
-}
-
-fitGameCanvasToMobile();
-window.addEventListener('resize', fitGameCanvasToMobile);
-window.addEventListener('orientationchange', fitGameCanvasToMobile);
 
 
 // Asset loading
